@@ -151,8 +151,6 @@ describe('LicenseView.build', () => {
         expect(contents).not.toContain('💵');
     });
 
-    // The card draws the year and the apk month, all it has room for, so the exact
-    // dates are spelled out in text, where Discord renders them per reader.
     it('spells the construction and apk date out as timestamps', () => {
         const contents = textContents(LicenseView.build(viewData(), NOW).components);
 
@@ -191,8 +189,6 @@ describe('LicenseView.build', () => {
         expect(textContents(LicenseView.build(data, NOW).components)).toContain('**Benzine + Elektriciteit**');
     });
 
-    // A date that needs attention is stated once, as the warning, so the plain apk
-    // line does not repeat it a line higher.
     it('only warns about the apk when it needs attention', () => {
         const healthy = textContents(LicenseView.build(viewData(), NOW).components);
         expect(healthy).not.toContain('⚠️ APK');
