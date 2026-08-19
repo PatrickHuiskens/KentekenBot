@@ -44,6 +44,11 @@ export class LicenseView {
             container.addTextDisplayComponents(new TextDisplayBuilder().setContent(specs));
         }
 
+        const dates = this.buildDates(data.vehicleInfo, now);
+        if (dates) {
+            container.addTextDisplayComponents(new TextDisplayBuilder().setContent(dates));
+        }
+
         const flags = this.buildFlags(data.vehicleInfo, now);
         if (flags.length > 0) {
             container.addTextDisplayComponents(new TextDisplayBuilder().setContent(`-# ${flags.join(' · ')}`));
@@ -242,6 +247,27 @@ export class LicenseView {
         }
 
         return parts.length > 0 ? parts.join(' · ') : null;
+    }
+
+    // The card has room for the construction year and the apk month, so the exact
+    // dates go here as Discord timestamps: every reader sees them in their own
+    // locale, and the day is no longer lost.
+    private static buildDates(vehicleInfo: VehicleInfo, now: number): string | null {
+        const parts: string[] = [];
+
+        const construction = vehicleInfo.getConstructionDateTimestamp();
+        if (!isNaN(construction)) {
+            parts.push(`🗓️ ${DateTime.getDiscordTimestamp(construction, DiscordTimestamps.LONG_DATE)}`);
+        }
+
+        // Left to the flag line when the apk needs attention: that one carries the
+        // same date as a relative one, which is what makes the warning land.
+        const expiry = vehicleInfo.getApkExpiryTimestamp();
+        if (expiry && !this.apkWarning(vehicleInfo, now)) {
+            parts.push(`🔧 APK tot ${DateTime.getDiscordTimestamp(expiry, DiscordTimestamps.LONG_DATE)}`);
+        }
+
+        return parts.length > 0 ? `-# ${parts.join(' · ')}` : null;
     }
 
     // The headline numbers, drawn into the card beside the plate.
